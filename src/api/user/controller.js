@@ -1,6 +1,7 @@
 import { success, notFound } from '../../services/response/'
 import { User } from '.'
 import { sign } from '../../services/jwt'
+var nodemailer = require('nodemailer')
 
 export const index = ({ querymen: { query, select, cursor } }, res, next) =>
   User.count(query)
@@ -13,15 +14,20 @@ export const index = ({ querymen: { query, select, cursor } }, res, next) =>
     .then(success(res))
     .catch(next)
 
-export const show = ({ params }, res, next) =>
+export const show = ({ params }, res, next) =>{
+  console.log("show controller called ------1")
   User.findById(params.id)
-    .then(notFound(res))
-    .then((user) => user ? user.view() : null)
-    .then(success(res))
-    .catch(next)
+  .then(notFound(res))
+  .then((user) => user ? user.view() : null)
+  .then(success(res))
+  .catch(next)
+}
+  
 
-export const showMe = ({ user }, res) =>
+export const showMe = ({ user }, res) =>{
+  console.log("show me called ")
   res.json(user.view(true))
+}
 
 export const create = ({ bodymen: { body } }, res, next) =>
   User.create(body)
@@ -92,3 +98,53 @@ export const destroy = ({ params }, res, next) =>
     .then((user) => user ? user.remove() : null)
     .then(success(res, 204))
     .catch(next)
+
+export const sendSmsController = async({params}, res, next)=>{
+  try{
+    console.log("reached to the sms controller ------------------------");
+    const way2sms = require('way2sms');
+    way2sms.login('9015336265', 'password');
+    let smsResult = await way2sms.send(cookie, '8976543210', 'foggy day');
+    console.log("sms Result",smsResult )
+    res.send("msg sent successfully"); 
+  }
+  catch(next){
+    console.log("i m i catch", next)
+  }
+}  
+
+export const sendEmailController = async({params}, res, next)=>{
+  try{
+    console.log("reached to the sms controller ------------------------");
+    // set up transport object for nodemailer
+    let transporter = nodemailer.createTransport({
+      service: 'gmail',
+      auth: {
+        user: 'azad.verma@geminisolutions.in',
+        pass: 'Azad@1508'
+      }
+    })
+
+    const mailOptions = {
+      from: 'azad.verma@geminisolutions.in', // sender address
+      to: 'azadsachin115@gmail.com', // list of receivers
+      subject: 'Test Email', // Subject line
+      html: '<p>my first email</p>'// plain text body
+    };
+
+    transporter.sendMail(mailOptions, function (err, info) {
+      if(err){
+        console.log("error encountered in sending email ------",err)
+        res.send("unable to send message ");
+      }
+      else{
+        console.log("email send successfully ------",info);
+        res.send("message sent successfully");
+      }
+        
+   });
+  }
+  catch(next){
+    console.log("i m i catch", next)
+  }
+}  

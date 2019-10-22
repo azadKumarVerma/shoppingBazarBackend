@@ -2,7 +2,8 @@ import { Router } from 'express'
 import user from './user'
 import auth from './auth'
 import login from './login'
-
+import product from './product'
+import category from './category'
 const router = new Router()
 
 /**
@@ -31,5 +32,8 @@ const router = new Router()
 router.use('/users', user)
 router.use('/auth', auth)
 router.use('/login', login)
+router.use('/product', product)
+router.use('/category', category)
+
 
 export default router
